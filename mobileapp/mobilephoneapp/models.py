@@ -1,6 +1,6 @@
-from django.db import models
-from django.contrib.auth.models import AbstractUser
 from ckeditor.fields import RichTextField
+from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 class User(AbstractUser):
@@ -8,6 +8,7 @@ class User(AbstractUser):
 
 
 class Banner(models.Model):
+    name = models.CharField(max_length=100)
     image = models.ImageField(blank=True, upload_to='banners/%Y/%m')
 
 
@@ -29,7 +30,6 @@ class Category(BaseModel):
 
 class Brand(BaseModel):
     name = models.CharField(max_length=100, unique=True)
-    description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -43,12 +43,11 @@ class Brand(BaseModel):
 class Product(BaseModel):
     name = models.CharField(max_length=100, blank=False, unique=True)
     image = models.ImageField(blank=True, upload_to='products/%Y/%m')
-    price = models.DecimalField(max_digits=10, decimal_places=0)
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-    storage = models.ForeignKey("Storage", on_delete=models.CASCADE)
-    color = models.ForeignKey("Color", on_delete=models.CASCADE)
-    ram = models.ForeignKey("Ram", on_delete=models.CASCADE)
-    manufacture = models.ForeignKey("Manufacture", on_delete=models.CASCADE)
+    price = models.CharField(max_length=13)
+    brand = models.ForeignKey(Brand, related_name='products', on_delete=models.CASCADE)
+    storage = models.ManyToManyField("Storage", related_name='storages')
+    color = models.ManyToManyField("Color", related_name='colors')
+    ram = models.ManyToManyField("Ram", related_name='rams')
     tags = models.ManyToManyField('Tag', related_name='products', blank=True)
     description = RichTextField()
     content = RichTextField()
@@ -77,13 +76,6 @@ class Ram(BaseModel):
 
 
 class Color(BaseModel):
-    name = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Manufacture(BaseModel):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -152,14 +144,10 @@ class Order(models.Model):
     count = models.IntegerField(default=0)
 
 
-class OrderDetail(models.Model):
+class OrderDetail(BaseModel):
     order = models.ForeignKey(Order, related_name='order_detail', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, related_name='product_detail', on_delete=models.CASCADE)
     quantity = models.CharField(max_length=2)
     total = models.CharField(max_length=14)
 
     def __str__(self):
         return self.order
-
-    class Meta:
-        unique_together = ('product', 'order')

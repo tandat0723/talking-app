@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'mobilephoneapp.apps.MobilephoneappConfig',
     'ckeditor',
     'ckeditor_uploader',
+    'rest_framework',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -81,8 +83,11 @@ WSGI_APPLICATION = 'mobileapp.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'mobiledb.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mobiledb',
+        'USER': 'root',
+        'PASSWORD': '12345678',
+        'HOST': ''  # mặc định localhost
     }
 }
 
